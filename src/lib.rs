@@ -8,6 +8,12 @@ abcdefghijklmnopqrstuvwxyz\
 
 pub fn encode(input: &[u8]) -> String {
     let mut output = String::with_capacity(input.len() / 3 * 4);
+    encode_into(input, &mut output);
+    output
+}
+
+pub fn encode_into(input: &[u8], buffer: &mut String) {
+    buffer.reserve(input.len() / 3 * 4);
     let mut trailing_idx = 0usize;
 
     for i in (0..input.len().saturating_sub(2)).step_by(3) {
@@ -17,10 +23,10 @@ pub fn encode(input: &[u8]) -> String {
             let a = *input.get_unchecked(i) as usize;
             let b = *input.get_unchecked(i + 1) as usize;
             let c = *input.get_unchecked(i + 2) as usize;
-            output.push(ALPHABET[a >> 2] as char);
-            output.push(ALPHABET[((a << 4) & 0x30) | (b >> 4)] as char);
-            output.push(ALPHABET[((b << 2) & 0x3C) | (c >> 6)] as char);
-            output.push(ALPHABET[c & 0x3F] as char);
+            buffer.push(ALPHABET[a >> 2] as char);
+            buffer.push(ALPHABET[((a << 4) & 0x30) | (b >> 4)] as char);
+            buffer.push(ALPHABET[((b << 2) & 0x3C) | (c >> 6)] as char);
+            buffer.push(ALPHABET[c & 0x3F] as char);
         }
         trailing_idx = i + 3;
     }
@@ -30,25 +36,23 @@ pub fn encode(input: &[u8]) -> String {
         1 => {
             unsafe {
                 let a = *input.get_unchecked(trailing_idx) as usize;
-                output.push(ALPHABET[a >> 2] as char);
-                output.push(ALPHABET[(a & 0x03) << 4] as char);
-                output.push_str("==");
+                buffer.push(ALPHABET[a >> 2] as char);
+                buffer.push(ALPHABET[(a & 0x03) << 4] as char);
+                buffer.push_str("==");
             }
         },
         2 => {
             unsafe {
                 let a = *input.get_unchecked(trailing_idx) as usize;
                 let b = *input.get_unchecked(trailing_idx + 1) as usize;
-                output.push(ALPHABET[a >> 2] as char);
-                output.push(ALPHABET[((a & 0x3) << 4) | (b >> 4)] as char);
-                output.push(ALPHABET[(b & 0x0F) << 2] as char);
-                output.push('=');
+                buffer.push(ALPHABET[a >> 2] as char);
+                buffer.push(ALPHABET[((a & 0x3) << 4) | (b >> 4)] as char);
+                buffer.push(ALPHABET[(b & 0x0F) << 2] as char);
+                buffer.push('=');
             }
         },
         _ => unreachable!(),
     }
-    
-    output
 }
 
 #[cfg(test)]
