@@ -71,9 +71,11 @@ mod tests {
             "Zm9vYmFy",
         ];
 
+        let mut output = String::with_capacity(outputs.last().unwrap().len());
         for i in 0..inputs.len() {
-            let output = encode(inputs[i].as_bytes());
+            encode_into(inputs[i].as_bytes(), &mut output);
             assert_eq!(output, outputs[i]);
+            output.clear();
         }
     }
 }
