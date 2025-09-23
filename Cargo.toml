@@ -1,6 +1,10 @@
 [package]
 name = "basic64"
+description = "A straightforward implementation of base64."
 version = "0.1.0"
+authors = ["ioseliev <ioseliev@pm.me>"]
+repository = "https://github.com/ioseliev/basic64"
+license = "MIT"
 edition = "2024"
 
 [dependencies]
