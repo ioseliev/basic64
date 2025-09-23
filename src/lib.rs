@@ -63,7 +63,7 @@ mod tests {
     #[test]
     fn test() {
         let inputs = ["", "foo", "foob", "fooba", "foobar"];
-        let outputs = [
+        let expected = [
             "",
             "Zm9v",
             "Zm9vYg==",
@@ -71,10 +71,10 @@ mod tests {
             "Zm9vYmFy",
         ];
 
-        let mut output = String::with_capacity(outputs.last().unwrap().len());
+        let mut output = String::with_capacity(expected.last().unwrap().len());
         for i in 0..inputs.len() {
             encode_into(inputs[i].as_bytes(), &mut output);
-            assert_eq!(output, outputs[i]);
+            assert_eq!(output, expected[i]);
             output.clear();
         }
     }
