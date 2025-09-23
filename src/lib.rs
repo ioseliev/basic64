@@ -6,12 +6,14 @@ abcdefghijklmnopqrstuvwxyz\
 0123456789+/\
 ";
 
+/// Encode `input` to base64, returning a newly allocated `String`.
 pub fn encode(input: &[u8]) -> String {
     let mut output = String::with_capacity(input.len() / 3 * 4);
     encode_into(input, &mut output);
     output
 }
 
+/// Encode `input` to base64, appending the result to `buffer`.
 pub fn encode_into(input: &[u8], buffer: &mut String) {
     buffer.reserve(input.len() / 3 * 4);
     let mut trailing_idx = 0usize;
