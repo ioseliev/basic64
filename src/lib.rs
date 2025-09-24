@@ -6,16 +6,25 @@ abcdefghijklmnopqrstuvwxyz\
 0123456789+/\
 ";
 
+macro_rules! needed_len {
+    (encoding $input:expr) => {
+        ($input + 2) / 3 * 4
+    };
+    (decoding $input:expr) => {
+        ($input + 3) / 4 * 3
+    };
+}
+
 /// Encode `input` to base64, returning a newly allocated `String`.
 pub fn encode(input: &[u8]) -> String {
-    let mut output = String::with_capacity(input.len() / 3 * 4);
+    let mut output = String::with_capacity(needed_len!(encoding input.len()));
     encode_into(input, &mut output);
     output
 }
 
 /// Encode `input` to base64, appending the result to `buffer`.
 pub fn encode_into(input: &[u8], buffer: &mut String) {
-    buffer.reserve(input.len() / 3 * 4);
+    buffer.reserve(needed_len!(encoding input.len()));
     let mut trailing_idx = 0usize;
 
     for i in (0..input.len().saturating_sub(2)).step_by(3) {
