@@ -73,9 +73,11 @@ mod tests {
     
     #[test]
     fn test() {
-        let inputs = ["", "foo", "foob", "fooba", "foobar"];
+        let inputs = ["", "f", "fo", "foo", "foob", "fooba", "foobar"];
         let expected = [
             "",
+            "Zg==",
+            "Zm8=",
             "Zm9v",
             "Zm9vYg==",
             "Zm9vYmE=",
