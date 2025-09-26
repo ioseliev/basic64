@@ -5,6 +5,15 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ\
 abcdefghijklmnopqrstuvwxyz\
 0123456789+/\
 ";
+const REV_ALPHABET: [u8; 256] = const {    
+    let mut ret = [64u8; 256];
+    let mut i = 0;
+    while i < ALPHABET.len() {
+        ret[ALPHABET[i] as usize] = i as u8;
+        i += 1;
+    }
+    ret
+};
 
 macro_rules! needed_len {
     (encoding $input:expr) => {
@@ -66,37 +75,24 @@ pub fn encode_into(input: &[u8], buffer: &mut String) {
     }
 }
 
-/// Decodes a base64-encoded string from `input` into `output`, returning the number of decoded bytes.
+/// Decodes a base64-encoded string from `input` into `output` while there are valid characters;
+/// returns the number of decoded bytes.
 /// 
 /// # Panics
 ///
 /// This function panics if
 /// - `output` is of insufficient length to fit the decoded data in its full.
-/// - A character outside of the base64 alphabet (`[A-Za-z0-9+/]`) is found in `input`.
-pub fn decode_into<I: AsRef<[u8]>>(input: I, output: &mut [u8]) -> usize {
-    #[inline]
-    fn decode_fn(value: u8) -> u8 {
-        match value {
-            v @ b'A'..=b'Z' => v - b'A',
-            v @ b'a'..=b'z' => v - b'a' + 26,
-            v @ b'0'..=b'9' => v - b'0' + 52,
-            b'/' => 62,
-            b'+' => 63,
-            b'=' => 64,
-            _ => unreachable!(),
-        }
-    }
-    
+pub fn decode_into<I: AsRef<[u8]>>(input: I, output: &mut [u8]) -> usize {    
     let input = input.as_ref();
     assert!(output.len() >= needed_len!(decoding input.len()), "`basic64::decode_into` called on `output` with insufficient len.");
 
     for (i, j) in (0..input.len().saturating_sub(3)).step_by(4)
                           .zip((0..output.len().saturating_sub(2)).step_by(3)) {
         unsafe {
-            let a = decode_fn(*input.get_unchecked(i));
-            let b = decode_fn(*input.get_unchecked(i + 1));
-            let c = decode_fn(*input.get_unchecked(i + 2));
-            let d = decode_fn(*input.get_unchecked(i + 3));
+            let a = REV_ALPHABET[*input.get_unchecked(i) as usize];
+            let b = REV_ALPHABET[*input.get_unchecked(i + 1) as usize];
+            let c = REV_ALPHABET[*input.get_unchecked(i + 2) as usize];
+            let d = REV_ALPHABET[*input.get_unchecked(i + 3) as usize];
             *output.get_unchecked_mut(j) = a << 2 | b >> 4;
             if c != 64 {
                 *output.get_unchecked_mut(j + 1) = (b & 0x0F) << 4 | c >> 2;
