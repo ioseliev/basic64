@@ -69,6 +69,14 @@ pub fn encode_into(input: &[u8], buffer: &mut String) {
     }
 }
 
+/// Decodes as much from `input` as possible; returns a newly allocated `Vec<u8>`.
+pub fn decode<I: AsRef<[u8]>>(input: I) -> Vec<u8> {
+    let input = input.as_ref();
+    let mut ret = Vec::with_capacity(needed_len!(decoding input.len()));
+    let _ = decode_into(input, &mut ret);
+    ret
+}
+
 /// Decodes a base64-encoded string from `input` appending the result to `output` while there are valid characters;
 /// returns the number of decoded bytes.
 pub fn decode_into<I: AsRef<[u8]>>(input: I, output: &mut Vec<u8>) -> usize {
