@@ -78,6 +78,11 @@ pub fn encode_into(input: &[u8], buffer: &mut String) {
 /// - `output` is of insufficient length to fit the decoded data in its full.
 pub fn decode_into<I: AsRef<[u8]>>(input: I, output: &mut [u8]) -> usize {
     let input = input.as_ref();
+
+    if input.len() < 4 {
+        return 0;
+    }
+
     assert!(
         output.len() >= needed_len!(decoding input.len()),
         "`basic64::decode_into` called on `output` with insufficient len."
@@ -92,16 +97,20 @@ pub fn decode_into<I: AsRef<[u8]>>(input: I, output: &mut [u8]) -> usize {
             let b = REV_ALPHABET[*input.get_unchecked(i + 1) as usize];
             let c = REV_ALPHABET[*input.get_unchecked(i + 2) as usize];
             let d = REV_ALPHABET[*input.get_unchecked(i + 3) as usize];
-            *output.get_unchecked_mut(j) = a << 2 | b >> 4;
-            if c != 64 {
-                *output.get_unchecked_mut(j + 1) = (b & 0x0F) << 4 | c >> 2;
-                if d != 64 {
-                    *output.get_unchecked_mut(j + 2) = (c & 0x03) << 6 | d;
+            if a != 64 && b != 64 {
+                *output.get_unchecked_mut(j) = a << 2 | b >> 4;
+                if c != 64 {
+                    *output.get_unchecked_mut(j + 1) = (b & 0x0F) << 4 | c >> 2;
+                    if d != 64 {
+                        *output.get_unchecked_mut(j + 2) = (c & 0x03) << 6 | d;
+                    } else {
+                        return j + 2;
+                    }
                 } else {
-                    return j + 2;
+                    return j + 1;
                 }
             } else {
-                return j + 1;
+                return j;
             }
         }
     }
