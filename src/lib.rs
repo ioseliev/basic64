@@ -131,9 +131,12 @@ mod tests {
     #[test]
     fn decode() {
         let inputs = [
-            "", "Zg==", "Zm8=", "Zm9v", "Zm9vYg==", "Zm9vYmE=", "Zm9vYmFy",
+            "", " ", "  ", "   ", "    ", "Zg==", "Zg  ", "Zm8=", "Zm8 ", "Zm9v", "Zm9vYg==",
+            "Zm9vYmE=", "Zm9vYmFy",
         ];
-        let expected = ["", "f", "fo", "foo", "foob", "fooba", "foobar"];
+        let expected = [
+            "", "", "", "", "", "f", "f", "fo", "fo", "foo", "foob", "fooba", "foobar",
+        ];
 
         let mut output = [0u8; 6];
         for i in 0..inputs.len() {
