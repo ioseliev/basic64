@@ -1,11 +1,9 @@
-
-
 const ALPHABET: &'static [u8] = b"\
 ABCDEFGHIJKLMNOPQRSTUVWXYZ\
 abcdefghijklmnopqrstuvwxyz\
 0123456789+/\
 ";
-const REV_ALPHABET: [u8; 256] = const {    
+const REV_ALPHABET: [u8; 256] = const {
     let mut ret = [64u8; 256];
     let mut i = 0;
     while i < ALPHABET.len() {
@@ -50,26 +48,22 @@ pub fn encode_into(input: &[u8], buffer: &mut String) {
         }
         trailing_idx = i + 3;
     }
-    
+
     match input.len() - trailing_idx {
-        0 => { },
-        1 => {
-            unsafe {
-                let a = *input.get_unchecked(trailing_idx) as usize;
-                buffer.push(ALPHABET[a >> 2] as char);
-                buffer.push(ALPHABET[(a & 0x03) << 4] as char);
-                buffer.push_str("==");
-            }
+        0 => {}
+        1 => unsafe {
+            let a = *input.get_unchecked(trailing_idx) as usize;
+            buffer.push(ALPHABET[a >> 2] as char);
+            buffer.push(ALPHABET[(a & 0x03) << 4] as char);
+            buffer.push_str("==");
         },
-        2 => {
-            unsafe {
-                let a = *input.get_unchecked(trailing_idx) as usize;
-                let b = *input.get_unchecked(trailing_idx + 1) as usize;
-                buffer.push(ALPHABET[a >> 2] as char);
-                buffer.push(ALPHABET[((a & 0x3) << 4) | (b >> 4)] as char);
-                buffer.push(ALPHABET[(b & 0x0F) << 2] as char);
-                buffer.push('=');
-            }
+        2 => unsafe {
+            let a = *input.get_unchecked(trailing_idx) as usize;
+            let b = *input.get_unchecked(trailing_idx + 1) as usize;
+            buffer.push(ALPHABET[a >> 2] as char);
+            buffer.push(ALPHABET[((a & 0x3) << 4) | (b >> 4)] as char);
+            buffer.push(ALPHABET[(b & 0x0F) << 2] as char);
+            buffer.push('=');
         },
         _ => unreachable!(),
     }
@@ -77,17 +71,22 @@ pub fn encode_into(input: &[u8], buffer: &mut String) {
 
 /// Decodes a base64-encoded string from `input` into `output` while there are valid characters;
 /// returns the number of decoded bytes.
-/// 
+///
 /// # Panics
 ///
 /// This function panics if
 /// - `output` is of insufficient length to fit the decoded data in its full.
-pub fn decode_into<I: AsRef<[u8]>>(input: I, output: &mut [u8]) -> usize {    
+pub fn decode_into<I: AsRef<[u8]>>(input: I, output: &mut [u8]) -> usize {
     let input = input.as_ref();
-    assert!(output.len() >= needed_len!(decoding input.len()), "`basic64::decode_into` called on `output` with insufficient len.");
+    assert!(
+        output.len() >= needed_len!(decoding input.len()),
+        "`basic64::decode_into` called on `output` with insufficient len."
+    );
 
-    for (i, j) in (0..input.len().saturating_sub(3)).step_by(4)
-                          .zip((0..output.len().saturating_sub(2)).step_by(3)) {
+    for (i, j) in (0..input.len().saturating_sub(3))
+        .step_by(4)
+        .zip((0..output.len().saturating_sub(2)).step_by(3))
+    {
         unsafe {
             let a = REV_ALPHABET[*input.get_unchecked(i) as usize];
             let b = REV_ALPHABET[*input.get_unchecked(i + 1) as usize];
@@ -113,19 +112,12 @@ pub fn decode_into<I: AsRef<[u8]>>(input: I, output: &mut [u8]) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
-    
+
     #[test]
     fn encode() {
         let inputs = ["", "f", "fo", "foo", "foob", "fooba", "foobar"];
         let expected = [
-            "",
-            "Zg==",
-            "Zm8=",
-            "Zm9v",
-            "Zm9vYg==",
-            "Zm9vYmE=",
-            "Zm9vYmFy",
+            "", "Zg==", "Zm8=", "Zm9v", "Zm9vYg==", "Zm9vYmE=", "Zm9vYmFy",
         ];
 
         let mut output = String::with_capacity(expected.last().unwrap().len());
@@ -139,13 +131,7 @@ mod tests {
     #[test]
     fn decode() {
         let inputs = [
-            "",
-            "Zg==",
-            "Zm8=",
-            "Zm9v",
-            "Zm9vYg==",
-            "Zm9vYmE=",
-            "Zm9vYmFy",
+            "", "Zg==", "Zm8=", "Zm9v", "Zm9vYg==", "Zm9vYmE=", "Zm9vYmFy",
         ];
         let expected = ["", "f", "fo", "foo", "foob", "fooba", "foobar"];
 
