@@ -1,3 +1,32 @@
+//! # Usage
+//!
+//! ```
+//! use std::io::{self, Read};
+//!
+//! use basic64;
+//!
+//! fn main() {
+//!     let mut handle = io::stdin().lock();
+//!
+//!     let mut input = [0u8; basic64::round_len!(dec 8_192)];
+//!     // !
+//!     let mut encoded = String::with_capacity(basic64::needed_len!(enc input.len()));
+//!
+//!     while let Ok(n) = handle.read(&mut input) {
+//!         if n == 0 {
+//!             break;
+//!         }
+//!
+//!         // !
+//!         basic64::encode_into(&input[..n], &mut encoded);
+//!         print!("{}", encoded);
+//!         encoded.clear();
+//!     }
+//!
+//!     println!("");
+//! }
+//! ```
+
 const ALPHABET: &'static [u8] = b"\
 ABCDEFGHIJKLMNOPQRSTUVWXYZ\
 abcdefghijklmnopqrstuvwxyz\
