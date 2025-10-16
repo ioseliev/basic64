@@ -30,25 +30,34 @@ macro_rules! round_len {
     };
 }
 
+/// Returns the needed length for a buffer to (en/de)code up to `len` bytes.
+///
+/// # Examples
+///
+/// ```
+/// let mut input = [0u8; basic64::round_len!(enc 8_192)];
+/// let mut output = Vec::<u8>::with_capacity(basic64::needed_len!(dec input.len()));
+/// ```
+#[macro_export]
 macro_rules! needed_len {
-    (encoding $input:expr) => {
-        ($input + 2) / 3 * 4
+    (enc $len:expr) => {
+        ($len + 2) / 3 * 4
     };
-    (decoding $input:expr) => {
-        ($input + 3) / 4 * 3
+    (dec $len:expr) => {
+        ($len + 3) / 4 * 3
     };
 }
 
 /// Encode `input` to base64, returning a newly allocated `String`.
 pub fn encode(input: &[u8]) -> String {
-    let mut output = String::with_capacity(needed_len!(encoding input.len()));
+    let mut output = String::with_capacity(needed_len!(enc input.len()));
     encode_into(input, &mut output);
     output
 }
 
 /// Encode `input` to base64, appending the result to `buffer`.
 pub fn encode_into(input: &[u8], buffer: &mut String) {
-    buffer.reserve(needed_len!(encoding input.len()));
+    buffer.reserve(needed_len!(enc input.len()));
     let mut trailing_idx = 0usize;
 
     for i in (0..input.len().saturating_sub(2)).step_by(3) {
@@ -89,7 +98,7 @@ pub fn encode_into(input: &[u8], buffer: &mut String) {
 /// Decodes as much from `input` as possible; returns a newly allocated `Vec<u8>`.
 pub fn decode<I: AsRef<[u8]>>(input: I) -> Vec<u8> {
     let input = input.as_ref();
-    let mut ret = Vec::with_capacity(needed_len!(decoding input.len()));
+    let mut ret = Vec::with_capacity(needed_len!(dec input.len()));
     let _ = decode_into(input, &mut ret);
     ret
 }
@@ -103,7 +112,7 @@ pub fn decode_into<I: AsRef<[u8]>>(input: I, output: &mut Vec<u8>) -> usize {
         return 0;
     }
 
-    let needed_len = needed_len!(decoding input.len());
+    let needed_len = needed_len!(dec input.len());
     output.reserve(needed_len);
 
     for (i, j) in (0..input.len().saturating_sub(3))
@@ -133,7 +142,7 @@ pub fn decode_into<I: AsRef<[u8]>>(input: I, output: &mut Vec<u8>) -> usize {
         }
     }
 
-    needed_len!(decoding input.len())
+    needed_len!(dec input.len())
 }
 
 #[cfg(test)]
