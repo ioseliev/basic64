@@ -13,6 +13,23 @@ const REV_ALPHABET: [u8; 256] = const {
     ret
 };
 
+/// Rounds up `len` to be an exact (en/de)coding buffer length.ii
+///
+/// # Examples
+///
+/// ```
+/// let mut input = [0u8; basic64::round_len!(enc 8_192)];
+/// ```
+#[macro_export]
+macro_rules! round_len {
+    (enc $len:expr) => {
+        ($len + 2) / 3 * 3
+    };
+    (enc $len:expr) => {
+        ($len + 3) & !3
+    };
+}
+
 macro_rules! needed_len {
     (encoding $input:expr) => {
         ($input + 2) / 3 * 4
