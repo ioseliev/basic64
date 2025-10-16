@@ -19,6 +19,7 @@ const REV_ALPHABET: [u8; 256] = const {
 ///
 /// ```
 /// let mut input = [0u8; basic64::round_len!(enc 8_192)];
+/// assert_eq!(input.len(), 8_193);
 /// ```
 #[macro_export]
 macro_rules! round_len {
@@ -37,6 +38,7 @@ macro_rules! round_len {
 /// ```
 /// let mut input = [0u8; basic64::round_len!(enc 8_192)];
 /// let mut output = Vec::<u8>::with_capacity(basic64::needed_len!(dec input.len()));
+/// assert_eq!(output.capacity(), 6_147);
 /// ```
 #[macro_export]
 macro_rules! needed_len {
