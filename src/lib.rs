@@ -5,29 +5,27 @@
 //!
 //! use basic64;
 //!
-//! fn main() {
-//!     let mut handle = io::stdin().lock();
+//! let mut handle = io::stdin().lock();
 //!
-//!     let mut input = [0u8; basic64::round_len!(dec 8_192)];
-//!     // !
-//!     let mut encoded = String::with_capacity(basic64::needed_len!(enc input.len()));
+//! let mut input = [0u8; basic64::round_len!(dec 8_192usize)];
+//! // !
+//! let mut encoded = String::with_capacity(basic64::needed_len!(enc input.len()));
 //!
-//!     while let Ok(n) = handle.read(&mut input) {
-//!         if n == 0 {
-//!             break;
-//!         }
-//!
-//!         // !
-//!         basic64::encode_into(&input[..n], &mut encoded);
-//!         print!("{}", encoded);
-//!         encoded.clear();
+//! while let Ok(n) = handle.read(&mut input) {
+//!     if n == 0 {
+//!         break;
 //!     }
 //!
-//!     println!("");
+//!     // !
+//!     basic64::encode_into(&input[..n], &mut encoded);
+//!     print!("{}", encoded);
+//!     encoded.clear();
 //! }
+//!
+//! println!("");
 //! ```
 
-const ALPHABET: &'static [u8] = b"\
+const ALPHABET: &[u8] = b"\
 ABCDEFGHIJKLMNOPQRSTUVWXYZ\
 abcdefghijklmnopqrstuvwxyz\
 0123456789+/\
@@ -56,7 +54,7 @@ macro_rules! round_len {
         ($len + 3) & !3
     };
     (dec $len:expr) => {
-        ($len + 2) / 3 * 3
+        $len.div_ceil(3) * 3
     };
 }
 
@@ -65,17 +63,17 @@ macro_rules! round_len {
 /// # Examples
 ///
 /// ```
-/// let mut input = [0u8; basic64::round_len!(dec 8_192)];
+/// let mut input = [0u8; basic64::round_len!(dec 8_192usize)];
 /// let mut output = Vec::<u8>::with_capacity(basic64::needed_len!(dec input.len()));
 /// assert_eq!(output.capacity(), 6_147);
 /// ```
 #[macro_export]
 macro_rules! needed_len {
     (enc $len:expr) => {
-        ($len + 2) / 3 * 4
+        $len.div_ceil(3) * 4
     };
     (dec $len:expr) => {
-        ($len + 3) / 4 * 3
+        $len.div_ceil(4) * 3
     };
 }
 
